@@ -111,17 +111,45 @@ function requireAdmin(req, res, next) {
   return res.status(401).send('Cần đăng nhập admin');
 }
 
-app.post('/api/product-info', (req, res) => {
+app.post('/api/product-info', async (req, res) => {
   const raw = req.body?.url || req.body?.content || '';
   const url = extractFirstUrl(raw);
+
   if (!url) return res.status(400).json({ error: 'Không tìm thấy link hợp lệ.' });
   if (!isShopeeUrl(url)) return res.status(400).json({ error: 'Vui lòng nhập link Shopee.' });
 
-  res.json({
-    title: 'Link Shopee đã sẵn sàng để chuyển đổi',
-    image: '',
-    productUrl: url
-  });
+  const cleanUrl = cleanShopeeUrl(url);
+
+  try {
+    const r = await fetch(cleanUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
+        'Accept': 'text/html'
+      }
+    });
+
+    const html = await r.text();
+
+    const title =
+      (html.match(/<meta property="og:title" content="([^"]+)"/i)?.[1] || '')
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, '&');
+
+    const image =
+      html.match(/<meta property="og:image" content="([^"]+)"/i)?.[1] || '';
+
+    res.json({
+      title: title || 'Link Shopee đã sẵn sàng để chuyển đổi',
+      image: image || '',
+      productUrl: cleanUrl
+    });
+  } catch (e) {
+    res.json({
+      title: 'Link Shopee đã sẵn sàng để chuyển đổi',
+      image: '',
+      productUrl: cleanUrl
+    });
+  }
 });
 
 app.post('/api/convert', (req, res) => {
