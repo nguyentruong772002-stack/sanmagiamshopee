@@ -97,29 +97,12 @@
     copyTextEl.textContent = 'SAO CHÉP LINK';
 
     try {
-      const infoRes = await fetch('/api/product-info', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: shopeeUrl })
-      });
-
-      const info = await infoRes.json();
-
-      if (info.title) {
-        resultDesc.textContent = info.title.length > 120
-          ? info.title.slice(0, 117) + '...'
-          : info.title;
-      }
-
-      if (info.image) {
-        imgBox.innerHTML = `<img src="${info.image}" alt="Sản phẩm" style="width:100%;height:100%;object-fit:cover;">`;
-      }
-
+      resultDesc.textContent = 'Đang chuyển đổi link...';
       const r = await fetch('/api/convert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: info.productUrl || shopeeUrl,
+          content: shopeeUrl,
           subId1: 'Summer',
           subId2: '',
           subId3: ''
