@@ -111,6 +111,21 @@ function requireAdmin(req, res, next) {
   return res.status(401).send('Cần đăng nhập admin');
 }
 
+function decodeHtml(s) {
+  return String(s || '')
+    .replace(/&quot;/g, '"')
+    .replace(/&#34;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
+function getMeta(html, name) {
+  const re1 = new RegExp(`<meta[^>]+property=["']${name}["'][^>]+content=["']([^"']+)["']`, 'i');
+  const re2 = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${name}["']`, 'i');
+  return decodeHtml((html.match(re1)?.[1] || html.match(re2)?.[1] || '').trim());
+}
+
 app.post('/api/product-info', async (req, res) => {
   const raw = req.body?.url || req.body?.content || '';
   const url = extractFirstUrl(raw);
@@ -122,11 +137,36 @@ app.post('/api/product-info', async (req, res) => {
 
   try {
     const r = await fetch(cleanUrl, {
+      method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
-        'Accept': 'text/html'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'vi-VN,vi;q=0.9,en;q=0.8'
       }
     });
+
+    const html = await r.text();
+
+    const title = getMeta(html, 'og:title');
+    const image = getMeta(html, 'og:image');
+    const description = getMeta(html, 'og:description');
+
+    return res.json({
+      title: title || 'Link Shopee đã sẵn sàng để chuyển đổi',
+      image: image || '',
+      description: description || '',
+      productUrl: cleanUrl
+    });
+
+  } catch (e) {
+    return res.json({
+      title: 'Link Shopee đã sẵn sàng để chuyển đổi',
+      image: '',
+      description: '',
+      productUrl: cleanUrl
+    });
+  }
+});
 
     const html = await r.text();
 
