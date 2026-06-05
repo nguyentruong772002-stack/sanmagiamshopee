@@ -197,13 +197,34 @@ app.get('/api/admin/stats', requireAdmin, (req, res) => {
     return sum + (x.clicks || []).filter(c => (c.clickedAt || '').slice(0, 10) === today).length;
   }, 0);
 
-  res.json({
-    totalConversions,
-    totalClicks,
-    todayConversions,
-    todayClicks,
-    conversions: conversions.slice(0, 300)
+  const allClicks = [];
+
+conversions.forEach(item => {
+  (item.clicks || []).forEach(click => {
+    allClicks.push({
+      conversionId: item.id,
+      clickedAt: click.clickedAt,
+      ipMasked: click.ipMasked,
+      userAgent: click.userAgent,
+      referer: click.referer,
+      originalUrl: item.originalUrl,
+      affiliateLink: item.affiliateLink,
+      trackingLink: item.trackingLink,
+      subId: item.subId
+    });
   });
+});
+
+allClicks.sort((a, b) => new Date(b.clickedAt) - new Date(a.clickedAt));
+
+res.json({
+  totalConversions,
+  totalClicks,
+  todayConversions,
+  todayClicks,
+  conversions: conversions.slice(0, 300),
+  clicks: allClicks.slice(0, 1000)
+});
 });
 
 app.delete('/api/admin/data', requireAdmin, (req, res) => {
