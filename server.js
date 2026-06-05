@@ -19,7 +19,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 function ensureDataFile() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, JSON.stringify({ conversions: [] }, null, 2));
+  if (!fs.existsSync(DATA_FILE)) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify({ conversions: [] }, null, 2));
+  }
 }
 
 function readDb() {
@@ -55,14 +57,12 @@ function cleanShopeeUrl(input) {
   const first = extractFirstUrl(String(input || '')) || String(input || '').trim();
   let url = first;
 
-  // Nếu người dùng dán link an_redir, lấy origin_link bên trong ra.
   try {
     const u = new URL(url);
     const origin = u.searchParams.get('origin_link');
     if (origin) url = decodeURIComponent(origin);
   } catch (_) {}
 
-  // Chỉ giữ domain + path, bỏ tracking của người khác: fbclid, mmp_pid, utm_source...
   try {
     const u = new URL(url);
     return u.origin + u.pathname;
@@ -93,7 +93,6 @@ function getClientIp(req) {
 }
 
 function maskIp(ip) {
-  // Che bớt IP để tránh lưu dữ liệu quá nhạy cảm.
   if (!ip) return '';
   if (ip.includes('.')) return ip.split('.').slice(0, 3).join('.') + '.x';
   if (ip.includes(':')) return ip.split(':').slice(0, 4).join(':') + ':xxxx';
@@ -107,23 +106,9 @@ function requireAdmin(req, res, next) {
   const [user, pass] = decoded.split(':');
 
   if (user === ADMIN_USER && pass === ADMIN_PASSWORD) return next();
+
   res.set('WWW-Authenticate', 'Basic realm="Shopee Admin"');
   return res.status(401).send('Cần đăng nhập admin');
-}
-
-function decodeHtml(s) {
-  return String(s || '')
-    .replace(/&quot;/g, '"')
-    .replace(/&#34;/g, '"')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
-}
-
-function getMeta(html, name) {
-  const re1 = new RegExp(`<meta[^>]+property=["']${name}["'][^>]+content=["']([^"']+)["']`, 'i');
-  const re2 = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${name}["']`, 'i');
-  return decodeHtml((html.match(re1)?.[1] || html.match(re2)?.[1] || '').trim());
 }
 
 app.post('/api/product-info', (req, res) => {
@@ -139,53 +124,6 @@ app.post('/api/product-info', (req, res) => {
     description: '',
     productUrl: cleanShopeeUrl(url)
   });
-});
-
-    const html = await r.text();
-
-    const title = getMeta(html, 'og:title');
-    const image = getMeta(html, 'og:image');
-    const description = getMeta(html, 'og:description');
-
-    return res.json({
-      title: title || 'Link Shopee đã sẵn sàng để chuyển đổi',
-      image: image || '',
-      description: description || '',
-      productUrl: cleanUrl
-    });
-
-  } catch (e) {
-    return res.json({
-      title: 'Link Shopee đã sẵn sàng để chuyển đổi',
-      image: '',
-      description: '',
-      productUrl: cleanUrl
-    });
-  }
-});
-
-    const html = await r.text();
-
-    const title =
-      (html.match(/<meta property="og:title" content="([^"]+)"/i)?.[1] || '')
-        .replace(/&quot;/g, '"')
-        .replace(/&amp;/g, '&');
-
-    const image =
-      html.match(/<meta property="og:image" content="([^"]+)"/i)?.[1] || '';
-
-    res.json({
-      title: title || 'Link Shopee đã sẵn sàng để chuyển đổi',
-      image: image || '',
-      productUrl: cleanUrl
-    });
-  } catch (e) {
-    res.json({
-      title: 'Link Shopee đã sẵn sàng để chuyển đổi',
-      image: '',
-      productUrl: cleanUrl
-    });
-  }
 });
 
 app.post('/api/convert', (req, res) => {
@@ -217,15 +155,14 @@ app.post('/api/convert', (req, res) => {
   });
   writeDb(db);
 
-  // Trả về link /go để bạn biết có khách bấm vào link không.
   res.json({
-  converted: [affiliateLink],
-  convertedText: affiliateLink,
-  directAffiliateLink: affiliateLink,
-  trackingLink: trackingLink,
-  count: 1,
-  source: 'direct-affiliate'
-});
+    converted: [affiliateLink],
+    convertedText: affiliateLink,
+    directAffiliateLink: affiliateLink,
+    trackingLink: trackingLink,
+    count: 1,
+    source: 'direct-affiliate'
+  });
 });
 
 app.get('/go/:id', (req, res) => {
@@ -256,7 +193,9 @@ app.get('/api/admin/stats', requireAdmin, (req, res) => {
   const totalClicks = conversions.reduce((sum, x) => sum + ((x.clicks || []).length), 0);
   const today = new Date().toISOString().slice(0, 10);
   const todayConversions = conversions.filter(x => (x.createdAt || '').slice(0, 10) === today).length;
-  const todayClicks = conversions.reduce((sum, x) => sum + (x.clicks || []).filter(c => (c.clickedAt || '').slice(0, 10) === today).length, 0);
+  const todayClicks = conversions.reduce((sum, x) => {
+    return sum + (x.clicks || []).filter(c => (c.clickedAt || '').slice(0, 10) === today).length;
+  }, 0);
 
   res.json({
     totalConversions,
