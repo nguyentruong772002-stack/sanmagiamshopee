@@ -28,20 +28,159 @@
   </main>
   <div class="toast-wrap" id="toastWrap"></div><footer class="footer">© 2026: SĂN MÃ GIẢM GIÁ SHOPEE </footer>
 <script>
+<script>
 (function(){
-  const input=document.getElementById('input'), convertBtn=document.getElementById('convertBtn'), resultCard=document.getElementById('resultCard'), resultDesc=document.getElementById('resultDesc'), resultDone=document.getElementById('resultDone'), resultError=document.getElementById('resultError'), btnCopyLink=document.getElementById('btnCopyLink'), copyTextEl=btnCopyLink.querySelector('.copy-text'), btnPaste=document.getElementById('btnPaste'), toastWrap=document.getElementById('toastWrap');
-  let lastConvertedText='';
-  function showMessage(text,ok){const t=document.createElement('div');t.className='toast '+(ok?'success':'error');t.textContent=text;toastWrap.appendChild(t);requestAnimationFrame(()=>t.classList.add('show'));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000)}
-  function setError(msg){resultError.textContent=msg||'';resultError.classList.toggle('hidden',!msg);resultCard.classList.toggle('has-error',!!msg);resultDone.classList.add('hidden');btnCopyLink.disabled=true;btnCopyLink.classList.remove('has-link')}
-  async function paste(){try{input.value=await navigator.clipboard.readText();showMessage('Đã dán link',true);convertBtn.click()}catch(e){showMessage('Trình duyệt không cho đọc clipboard. Hãy dán thủ công.',false)}}
-  btnPaste.onclick=paste;
-  convertBtn.onclick=async function(){
-    const raw=input.value.trim(); const m=raw.match(/https?:\/\/[^\s"'<>]+/i); if(!m){showMessage('Vui lòng dán link Shopee hợp lệ',false);return}
-    convertBtn.disabled=true; convertBtn.classList.add('is-loading'); resultCard.classList.remove('hidden'); setError(''); resultDesc.textContent='Đang chuyển đổi link...'; btnCopyLink.disabled=true; copyTextEl.textContent='SAO CHÉP LINK';
-    try{const r=await fetch('/api/convert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:m[0],subId1:'Summer',subId2:'',subId3:''})}); const data=await r.json(); if(!r.ok||data.error) throw new Error(data.error||'Lỗi chuyển đổi'); lastConvertedText=data.convertedText || (data.converted||[]).join('\n'); if(!lastConvertedText) throw new Error('Không tạo được link'); resultDesc.textContent=lastConvertedText; resultDone.classList.remove('hidden'); btnCopyLink.disabled=false; btnCopyLink.classList.add('has-link'); showMessage('Đã chuyển đổi xong',true); resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){setError(e.message||'Lỗi kết nối');showMessage(e.message||'Lỗi kết nối',false)}finally{convertBtn.disabled=false;convertBtn.classList.remove('is-loading')}
+  const input = document.getElementById('input');
+  const convertBtn = document.getElementById('convertBtn');
+  const resultCard = document.getElementById('resultCard');
+  const resultDesc = document.getElementById('resultDesc');
+  const resultDone = document.getElementById('resultDone');
+  const resultError = document.getElementById('resultError');
+  const btnCopyLink = document.getElementById('btnCopyLink');
+  const copyTextEl = btnCopyLink.querySelector('.copy-text');
+  const btnPaste = document.getElementById('btnPaste');
+  const toastWrap = document.getElementById('toastWrap');
+  const imgBox = document.querySelector('.result-product-img');
+
+  let lastConvertedText = '';
+
+  function showMessage(text, ok) {
+    const t = document.createElement('div');
+    t.className = 'toast ' + (ok ? 'success' : 'error');
+    t.textContent = text;
+    toastWrap.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 300);
+    }, 3000);
+  }
+
+  function setError(msg) {
+    resultError.textContent = msg || '';
+    resultError.classList.toggle('hidden', !msg);
+    resultCard.classList.toggle('has-error', !!msg);
+    resultDone.classList.add('hidden');
+    btnCopyLink.disabled = true;
+    btnCopyLink.classList.remove('has-link');
+  }
+
+  async function paste() {
+    try {
+      input.value = await navigator.clipboard.readText();
+      showMessage('Đã dán link', true);
+      convertBtn.click();
+    } catch(e) {
+      showMessage('Trình duyệt không cho đọc clipboard. Hãy dán thủ công.', false);
+    }
+  }
+
+  btnPaste.onclick = paste;
+
+  convertBtn.onclick = async function() {
+    const raw = input.value.trim();
+    const m = raw.match(/https?:\/\/[^\s"'<>]+/i);
+
+    if (!m) {
+      showMessage('Vui lòng dán link Shopee hợp lệ', false);
+      return;
+    }
+
+    const shopeeUrl = m[0];
+
+    convertBtn.disabled = true;
+    convertBtn.classList.add('is-loading');
+    resultCard.classList.remove('hidden');
+    setError('');
+    resultDesc.textContent = 'Đang lấy thông tin sản phẩm...';
+    imgBox.innerHTML = 'S';
+    btnCopyLink.disabled = true;
+    copyTextEl.textContent = 'SAO CHÉP LINK';
+
+    try {
+      const infoRes = await fetch('/api/product-info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: shopeeUrl })
+      });
+
+      const info = await infoRes.json();
+
+      if (info.title) {
+        resultDesc.textContent = info.title.length > 120
+          ? info.title.slice(0, 117) + '...'
+          : info.title;
+      }
+
+      if (info.image) {
+        imgBox.innerHTML = `<img src="${info.image}" alt="Sản phẩm" style="width:100%;height:100%;object-fit:cover;">`;
+      }
+
+      const r = await fetch('/api/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: info.productUrl || shopeeUrl,
+          subId1: 'Summer',
+          subId2: '',
+          subId3: ''
+        })
+      });
+
+      const data = await r.json();
+
+      if (!r.ok || data.error) {
+        throw new Error(data.error || 'Lỗi chuyển đổi');
+      }
+
+      lastConvertedText = data.convertedText || (data.converted || []).join('\n');
+
+      if (!lastConvertedText) {
+        throw new Error('Không tạo được link');
+      }
+
+      resultDone.classList.remove('hidden');
+      btnCopyLink.disabled = false;
+      btnCopyLink.classList.add('has-link');
+      showMessage('Đã chuyển đổi xong', true);
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    } catch(e) {
+      setError(e.message || 'Lỗi kết nối');
+      showMessage(e.message || 'Lỗi kết nối', false);
+    } finally {
+      convertBtn.disabled = false;
+      convertBtn.classList.remove('is-loading');
+    }
   };
-  async function copyLink(){if(!lastConvertedText)return; try{await navigator.clipboard.writeText(lastConvertedText);btnCopyLink.classList.add('copied');copyTextEl.textContent='ĐÃ SAO CHÉP!';showMessage('Đã sao chép link',true);setTimeout(()=>{btnCopyLink.classList.remove('copied');copyTextEl.textContent='SAO CHÉP LINK'},1800)}catch(e){showMessage('Không copy được, hãy bôi đen link để copy thủ công',false)}}
-  btnCopyLink.onclick=copyLink; document.getElementById('tipCopyTrigger').onclick=copyLink; document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();convertBtn.click()}})
+
+  async function copyLink() {
+    if (!lastConvertedText) return;
+
+    try {
+      await navigator.clipboard.writeText(lastConvertedText);
+      btnCopyLink.classList.add('copied');
+      copyTextEl.textContent = 'ĐÃ SAO CHÉP!';
+      showMessage('Đã sao chép link', true);
+
+      setTimeout(() => {
+        btnCopyLink.classList.remove('copied');
+        copyTextEl.textContent = 'SAO CHÉP LINK';
+      }, 1800);
+    } catch(e) {
+      showMessage('Không copy được, hãy bôi đen link để copy thủ công', false);
+    }
+  }
+
+  btnCopyLink.onclick = copyLink;
+  document.getElementById('tipCopyTrigger').onclick = copyLink;
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      convertBtn.click();
+    }
+  });
 })();
 </script>
 </body>
