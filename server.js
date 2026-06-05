@@ -223,12 +223,13 @@ app.post('/api/convert', (req, res) => {
 
   // Trả về link /go để bạn biết có khách bấm vào link không.
   res.json({
-    converted: [trackingLink],
-    convertedText: trackingLink,
-    directAffiliateLink: affiliateLink,
-    count: 1,
-    source: 'custom-tracking'
-  });
+  converted: [affiliateLink],
+  convertedText: affiliateLink,
+  directAffiliateLink: affiliateLink,
+  trackingLink: trackingLink,
+  count: 1,
+  source: 'direct-affiliate'
+});
 });
 
 app.get('/go/:id', (req, res) => {
