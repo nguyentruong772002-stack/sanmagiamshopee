@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý chuyển đổi link Shopee</title>
+  <style>
+    :root{--primary:#e85d04;--border:#e7e5e4;--bg:#fafaf9;--card:#fff;--text:#1c1917;--muted:#78716c}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{padding:18px 22px;background:#fff;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    h1{font-size:22px;margin:0}.wrap{max-width:1180px;margin:0 auto;padding:22px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.04);padding:16px}.stat .label{color:var(--muted);font-size:13px}.stat .num{font-size:30px;font-weight:800;margin-top:4px;color:var(--primary)}
+    button{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}.btn{background:var(--primary);color:#fff}.btn-light{background:#f5f5f4;color:#444;border:1px solid var(--border)}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border)} th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;font-size:13px} th{background:#fff7ed;color:#7c2d12} tr:last-child td{border-bottom:none}.url{max-width:330px;word-break:break-all}.small{color:var(--muted);font-size:12px}.copy{margin-top:6px}.topbar{display:flex;gap:8px;align-items:center}.danger{background:#dc2626;color:#fff}
+    @media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)} table{display:block;overflow-x:auto} }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Quản lý web chuyển đổi link</h1>
+  <div class="topbar">
+    <button class="btn-light" onclick="loadData()">Tải lại</button>
+    <button class="danger" onclick="clearData()">Xóa dữ liệu</button>
+  </div>
+</header>
+<div class="wrap">
+  <div class="grid">
+    <div class="card stat"><div class="label">Tổng lượt chuyển đổi</div><div class="num" id="totalConversions">0</div></div>
+    <div class="card stat"><div class="label">Tổng lượt bấm link</div><div class="num" id="totalClicks">0</div></div>
+    <div class="card stat"><div class="label">Chuyển đổi hôm nay</div><div class="num" id="todayConversions">0</div></div>
+    <div class="card stat"><div class="label">Click hôm nay</div><div class="num" id="todayClicks">0</div></div>
+  </div>
+  <div class="card">
+    <div class="small" style="margin-bottom:10px">Lưu ý: hệ thống chỉ ghi nhận người dùng bấm vào link dạng /go/... do web tạo ra. Nếu bạn đưa link Shopee trực tiếp thì web không theo dõi được click.</div>
+    <table>
+      <thead><tr><th>Thời gian</th><th>Link sạch</th><th>Link tracking</th><th>Click</th><th>Thông tin</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="5">Đang tải...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+<script>
+function fmtTime(s){try{return new Date(s).toLocaleString('vi-VN')}catch(e){return s||''}}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+async function copyText(t){await navigator.clipboard.writeText(t); alert('Đã copy')}
+async function loadData(){
+  const r = await fetch('/api/admin/stats');
+  if(!r.ok){document.body.innerHTML='Không đăng nhập được admin';return}
+  const d = await r.json();
+  totalConversions.textContent=d.totalConversions; totalClicks.textContent=d.totalClicks; todayConversions.textContent=d.todayConversions; todayClicks.textContent=d.todayClicks;
+  rows.innerHTML = (d.conversions||[]).map(x=>`<tr>
+    <td>${fmtTime(x.createdAt)}<div class="small">SubID: ${esc(x.subId)}</div></td>
+    <td class="url"><a href="${esc(x.cleanUrl)}" target="_blank">${esc(x.cleanUrl)}</a></td>
+    <td class="url"><a href="${esc(x.trackingLink)}" target="_blank">${esc(x.trackingLink)}</a><br><button class="btn-light copy" onclick="copyText('${esc(x.trackingLink)}')">Copy</button></td>
+    <td><b>${(x.clicks||[]).length}</b><div class="small">Lần cuối: ${x.clicks&&x.clicks[0]?fmtTime(x.clicks[x.clicks.length-1].clickedAt):'Chưa có'}</div></td>
+    <td class="small">IP convert: ${esc(x.ipMasked)}<br>User-agent: ${esc((x.userAgent||'').slice(0,120))}</td>
+  </tr>`).join('') || '<tr><td colspan="5">Chưa có dữ liệu</td></tr>';
+}
+async function clearData(){
+  if(!confirm('Xóa toàn bộ dữ liệu chuyển đổi/click?'))return;
+  await fetch('/api/admin/data',{method:'DELETE'}); loadData();
+}
+loadData();
+</script>
+</body>
+</html>
