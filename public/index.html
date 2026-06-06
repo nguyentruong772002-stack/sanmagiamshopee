@@ -16,16 +16,140 @@
     .result-card{margin-top:1.5rem;background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);border-top:4px solid var(--primary);overflow:hidden;animation:fadeInUp .5s var(--ease-out) both}.hidden{display:none!important}.result-product{display:flex;gap:1.25rem;padding:1.5rem;min-height:120px;align-items:flex-start;background:linear-gradient(180deg,rgba(250,250,249,.6) 0%,transparent 100%);border-bottom:1px solid var(--border)}.result-product-img{width:96px;height:96px;min-width:96px;background:linear-gradient(145deg,#f5f5f4,#eae8e6);border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-shrink:0;color:var(--primary);font-weight:800;font-size:40px}.result-product-desc{font-size:.9375rem;font-weight:500;color:var(--text);line-height:1.45;word-break:break-word}.result-done{display:inline-flex;align-items:center;gap:.35rem;font-size:.8125rem;font-weight:600;color:#166534;background:rgba(34,197,94,.12);padding:.35rem .65rem;border-radius:999px;width:fit-content;margin-top:.5rem}.result-error{font-size:.875rem;font-weight:500;color:#b91c1c;padding:.4rem 0;line-height:1.4}.has-error{border-top-color:#ef4444}
     .btn-copy-link{display:flex;align-items:center;justify-content:center;gap:.5rem;width:calc(100% - 3rem);margin:1rem 1.5rem 1.25rem;padding:.85rem 1.5rem;background:#f5f5f4;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.95rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);cursor:pointer}.btn-copy-link.has-link{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border-color:transparent}.btn-copy-link.copied{background:#15803d;color:#fff;border-color:transparent}.btn-copy-link:disabled{opacity:.6;cursor:not-allowed;pointer-events:none}
     .tip-box{margin:12px 1.5rem 1rem;padding:12px 1.25rem;background:#fff9f0;border:1px dashed #ffab91;border-radius:12px;font-size:13px;color:#444;line-height:1.6}.tip-copy-trigger{color:#ee4d2d;cursor:pointer;text-decoration:none;font-weight:700}.tip-fb-link{color:#007bff;text-decoration:none;word-break:break-all;display:inline-block;margin:4px 0}.tip-fb-link:hover{text-decoration:underline}
-    .toast-wrap{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;max-width:calc(100vw - 2rem)}.toast{padding:.75rem 1.25rem;border-radius:var(--radius-sm);font-size:.9rem;font-weight:500;box-shadow:0 10px 40px rgba(0,0,0,.12);opacity:0;transform:translateX(100%);transition:opacity .3s,transform .3s;background:#fff}.toast.show{opacity:1;transform:translateX(0)}.toast.success{color:#15803d;border-left:4px solid #22c55e}.toast.error{color:#b91c1c;border-left:4px solid #ef4444}.footer{text-align:center;padding:1.25rem;font-size:.85rem;color:var(--text-muted);border-top:1px solid var(--border);background:var(--bg-card)}
+    .toast-wrap{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;max-width:calc(100vw - 2rem)}.toast{padding:.75rem 1.25rem;border-radius:var(--radius-sm);font-size:.9rem;font-weight:500;box-shadow:0 10px 40px rgba(0,0,0,.12);opacity:0;transform:translateX(100%);transition:opacity .3s,transform .3s;background:#fff}.toast.show{opacity:1;transform:translateX(0)}.toast.success{color:#15803d;border-left:4px solid #22c55e}.main-layout{
+  flex:1;
+  display:flex;
+  gap:24px;
+  max-width:1200px;
+  width:100%;
+  margin:0 auto;
+  padding:20px;
+}
+
+.left-panel{
+  flex:1;
+}
+
+.right-panel{
+  width:360px;
+}
+
+.guide-box{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 4px 20px rgba(0,0,0,.08);
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.guide-box h3{
+  color:#ee4d2d;
+  margin-bottom:15px;
+}
+
+.guide-step{
+  padding:10px 0;
+  border-bottom:1px solid #eee;
+}
+
+.guide-note{
+  margin-top:15px;
+  padding:12px;
+  background:#fff7ed;
+  border-radius:10px;
+  color:#c2410c;
+  font-weight:600;
+}
+
+.guide-benefit{
+  margin-top:15px;
+  padding:15px;
+  background:#f0fdf4;
+  border-radius:10px;
+}
+
+.guide-benefit h4{
+  margin-bottom:10px;
+  color:#15803d;
+}
+
+.guide-warning{
+  margin-top:15px;
+  padding:12px;
+  background:#fef2f2;
+  border-radius:10px;
+  color:#dc2626;
+  font-weight:600;
+}
+
+.footer{
+  text-align:center;
+  padding:1.25rem;
+  font-size:.85rem;
+  color:var(--text-muted);
+  border-top:1px solid var(--border);
+  background:var(--bg-card);
+}
+
+@media(max-width:900px){
+  .main-layout{
+    flex-direction:column;
+  }
+
+  .right-panel{
+    width:100%;
+  }
+}
+
+@media(max-width:900px){.main-layout{flex-direction:column}.right-panel{width:100%}}
+
+.footer{text-align:center;padding:1.25rem;font-size:.85rem;color:var(--text-muted);border-top:1px solid var(--border);background:var(--bg-card)}
     @media(max-width:480px){.main{padding:0 1rem 2rem}.card{padding:1.25rem}.btn-copy-link{width:calc(100% - 2rem);margin-left:1rem;margin-right:1rem}.result-product{gap:1rem;padding:1.25rem}.result-product-img{width:80px;height:80px;min-width:80px;font-size:34px}.toast-wrap{left:1rem;right:1rem;max-width:none}}
   </style>
 </head>
 <body>
   <header class="header"><div class="logo"><div class="logo-icon"><img src="https://shp.ee/favicon.ico" alt=""></div><span class="apma-title"> TOP 2 VIỆT NAM Chuyên Đổi link Shopee áp mã 20% 25% 30%</span></div></header>
-  <main class="main">
+ <main class="main-layout">
+   <div class="left-panel">
     <div class="card" style="margin-top:10px"><div class="link-input-wrap"><input type="text" id="input" placeholder="Dán link Shopee vào đây..." autocomplete="off"><button type="button" class="btn-paste-inside" id="btnPaste" title="Dán link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="13" height="13" rx="2"/><path d="M5 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1"/></svg></button></div><button type="button" class="btn-convert-main" id="convertBtn"><span class="btn-spinner"></span><span class="btn-convert-text">Chuyển đổi ngay</span></button></div>
     <div class="result-card hidden" id="resultCard"><div class="result-product"><div class="result-product-img">S</div><div><p class="result-product-desc" id="resultDesc">Link đã chuyển đổi.</p><div class="result-done hidden" id="resultDone">✓ Đã chuyển đổi xong</div><p class="result-error hidden" id="resultError"></p></div></div><button type="button" class="btn-copy-link" id="btnCopyLink" disabled><span>🔗</span><span class="copy-text">SAO CHÉP LINK</span></button><div class="tip-box">💡 Bạn hãy nhấn <b class="tip-copy-trigger" id="tipCopyTrigger">"🔗 Sao chép link"</b> và dán vào bình luận/post để áp mã nhé.</div></div>
-  </main>
+ </div>
+
+<div class="right-panel">
+
+<div class="guide-box">
+  <h3>📖 CÁCH NHẬN VOUCHER FACEBOOK</h3>
+
+  <div class="guide-step">1️⃣ Sao chép link sản phẩm Shopee muốn mua.</div>
+
+  <div class="guide-step">2️⃣ Dán link vào ô bên trái và nhấn "🔥 CHUYỂN ĐỔI NGAY".</div>
+
+  <div class="guide-step">3️⃣ Nhấn "🔗 SAO CHÉP LINK".</div>
+
+  <div class="guide-step">4️⃣ Quay lại bài viết Facebook và bình luận link vừa sao chép.</div>
+
+  <div class="guide-step">5️⃣ Nhấn vào chính link đó để mở Shopee và nhận voucher.</div>
+
+  <div class="guide-note">
+    🎁 Voucher Facebook chỉ áp dụng khi truy cập qua link đã chuyển đổi.
+  </div>
+
+  <div class="guide-benefit">
+    <h4>🔥 ƯU ĐÃI CÓ THỂ NHẬN</h4>
+
+    <div>✅ Voucher 20%</div>
+    <div>✅ Voucher 25%</div>
+    <div>✅ Voucher 30%</div>
+    <div>✅ Freeship Xtra</div>
+  </div>
+
+  <div class="guide-warning">
+    ⚠️ Nếu mở trực tiếp link sản phẩm Shopee, voucher Facebook có thể không hiển thị.
+  </div>
+</div>
+
+</div>
+ </main>
   <div class="toast-wrap" id="toastWrap"></div><footer class="footer">© 2026: SĂN MÃ GIẢM GIÁ SHOPEE </footer>
 <script>
 (function(){
