@@ -72,18 +72,15 @@ function cleanShopeeUrl(input) {
 }
 
 function buildAffiliateLink(cleanUrl, subId) {
-  const u = new URL(cleanUrl);
-
-  u.searchParams.set('mmp_pid', 'an_' + AFFILIATE_ID);
-  u.searchParams.set('utm_source', 'an_' + AFFILIATE_ID);
-  u.searchParams.set('utm_medium', 'affiliates');
-  u.searchParams.set('utm_content', subId || DEFAULT_SUB_ID);
-  u.searchParams.set('utm_campaign', 'id_web');
-  u.searchParams.set('utm_term', 'web');
-
-  return u.toString();
+  return (
+    'https://s.shopee.vn/an_redir?origin_link=' +
+    encodeURIComponent(cleanUrl) +
+    '&affiliate_id=' +
+    encodeURIComponent(AFFILIATE_ID) +
+    '&sub_id=' +
+    encodeURIComponent(subId || DEFAULT_SUB_ID)
+  );
 }
-
 function makeId() {
   return crypto.randomBytes(5).toString('hex');
 }
