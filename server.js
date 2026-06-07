@@ -60,14 +60,27 @@ function cleanShopeeUrl(input) {
   try {
     const u = new URL(url);
     const origin = u.searchParams.get('origin_link');
-    if (origin) url = decodeURIComponent(origin);
+    if (origin) {
+      url = decodeURIComponent(origin);
+    }
   } catch (_) {}
 
   try {
     const u = new URL(url);
-    return u.origin + u.pathname;
+
+    [
+      'mmp_pid',
+      'utm_source',
+      'utm_medium',
+      'utm_content',
+      'utm_term',
+      'sub_id',
+      'affiliate_id'
+    ].forEach(p => u.searchParams.delete(p));
+
+    return u.toString();
   } catch (_) {
-    return url.split('?')[0];
+    return url;
   }
 }
 
